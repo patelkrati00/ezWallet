@@ -1,8 +1,12 @@
+import WalletDashboard from "./components/Walletdashboard";
+
 function App() {
+  
+
   return (
-    <h1 className="text-5xl font-bold text-blue-500">
-      ezWallet 🚀
-    </h1>
+    <div >
+      <WalletDashboard/>
+    </div>
   );
 }
 
