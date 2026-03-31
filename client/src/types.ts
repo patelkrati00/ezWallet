@@ -32,4 +32,4 @@ export interface Tx {
   from: string;
   time: string;
   up: boolean;
-}
+} 
