@@ -1,4 +1,4 @@
-import WalletDashboard from "./components/Walletdashboard";
+import WalletDashboard from "./Walletdashboard";
 
 function App() {
   

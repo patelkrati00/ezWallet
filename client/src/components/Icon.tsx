@@ -6,11 +6,15 @@ interface IconProps {
   style?: CSSProperties;
 }
 
-export const Icon = ({ d, size = 20, style = {} }: IconProps) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth="1.5"
-    strokeLinecap="round" strokeLinejoin="round"
-    style={{ display: "block", flexShrink: 0, ...style }}>
-    <path d={d} />
-  </svg>
-);
+export default function Icon({ d, size = 20, style = {} }: IconProps) {
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.5"
+      strokeLinecap="round" strokeLinejoin="round"
+      style={{ display: "block", flexShrink: 0, ...style }}
+    >
+      <path d={d} />
+    </svg>
+  );
+}

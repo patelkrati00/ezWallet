@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { connection } from "../services/Solana";
 
-export const useWallet = async () => {
+export const useWallet = () => {
 
     const [wallet, setWallet] = useState<Keypair | null>(null);
     const [balance, setBalance] = useState(0);
