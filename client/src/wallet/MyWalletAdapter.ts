@@ -1,33 +1,74 @@
-import { Keypair, Transaction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  Transaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+  Connection,
+} from "@solana/web3.js";
 
 export class MyWalletAdapter {
-    private keypair: Keypair | null = null;
-    private connected = false;
+  private wallet: Keypair | null = null;
+  private connection: Connection;
 
-    connect(): string {
-        this.keypair = Keypair.generate();
-        this.connected = true;
+  constructor(connection: Connection) {
+    this.connection = connection;
+  }
 
-        return this.keypair.publicKey.toBase58();
+  connect(): PublicKey {
+    const stored = localStorage.getItem("wallet");
+
+    if (stored) {
+      const secretKey = Uint8Array.from(JSON.parse(stored));
+      this.wallet = Keypair.fromSecretKey(secretKey);
+    } else {
+      this.wallet = Keypair.generate();
+      localStorage.setItem(
+        "wallet",
+        JSON.stringify(Array.from(this.wallet.secretKey))
+      );
     }
 
-    disconnect(): void {
-        this.keypair = null;
-        this.connected = false;
-    }
+    return this.wallet.publicKey;
+  }
 
-    isconnected(): boolean {
-        return this.connected;
-    }
+  disconnect() {
+    this.wallet = null;
+  }
 
-    getpublicKey(): string | null {
-        return this.keypair?.publicKey.toBase58() || null;
-    }
+  getPublicKey(): PublicKey | null {
+    return this.wallet?.publicKey || null;
+  }
 
-    signTransaction(tx: Transaction): Transaction {
-        if (!this.keypair) throw new Error("wallet not connected");
-        tx.sign(this.keypair);
-        return tx;
-    }
+  async getBalance(): Promise<number> {
+    if (!this.wallet) throw new Error("Not connected");
 
+    const bal = await this.connection.getBalance(this.wallet.publicKey);
+    return bal / LAMPORTS_PER_SOL;
+  }
+
+  async sendSol(to: string, amount: number) {
+    if (!this.wallet) throw new Error("Not connected");
+
+    const receiver = new PublicKey(to);
+
+    const tx = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: this.wallet.publicKey,
+        toPubkey: receiver,
+        lamports: amount * LAMPORTS_PER_SOL,
+      })
+    );
+
+    const sig = await this.connection.sendTransaction(tx, [this.wallet]);
+    await this.connection.confirmTransaction(sig, "finalized");
+
+    return sig;
+  }
+
+  signTransaction(tx: Transaction): Transaction {
+    if (!this.wallet) throw new Error("Not connected");
+    tx.sign(this.wallet);
+    return tx;
+  }
 }
