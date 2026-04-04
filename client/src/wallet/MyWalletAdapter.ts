@@ -46,6 +46,7 @@ export class MyWalletAdapter {
     }
     this.publicKey = this.wallet.publicKey;
     this.connected = true;
+    this.emit("connect",this.publicKey);
     return this.publicKey;
   }
 
@@ -53,6 +54,7 @@ export class MyWalletAdapter {
     this.wallet = null;
     this.publicKey = null;
     this.connected = false;
+    this.emit("disconnect")
   }
 
   getPublicKey(): PublicKey | null {
