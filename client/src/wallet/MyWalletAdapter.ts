@@ -10,10 +10,26 @@ import {
 export class MyWalletAdapter {
   private wallet: Keypair | null = null;
   private connection: Connection;
+  public publicKey: PublicKey | null = null;
+  public connected: boolean = false;
 
   constructor(connection: Connection) {
     this.connection = connection;
   }
+
+  //event listeners
+
+  private listeners : { [key : string] : Function[] } = {};
+
+  on(event:string,fn:Function){
+    this.listeners[event] = this.listeners[event] || [];
+    this.listeners[event].push(fn);
+  }
+
+  emit(event:string, data?:any){
+     (this.listeners[event] || []).forEach(fn=>fn(data));
+  }
+
 
   connect(): PublicKey {
     const stored = localStorage.getItem("wallet");
@@ -28,12 +44,15 @@ export class MyWalletAdapter {
         JSON.stringify(Array.from(this.wallet.secretKey))
       );
     }
-
-    return this.wallet.publicKey;
+    this.publicKey = this.wallet.publicKey;
+    this.connected = true;
+    return this.publicKey;
   }
 
   disconnect() {
     this.wallet = null;
+    this.publicKey = null;
+    this.connected = false;
   }
 
   getPublicKey(): PublicKey | null {
